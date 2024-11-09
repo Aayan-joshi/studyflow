@@ -34,7 +34,7 @@ const config: Config = {
   				'800': '#F4F6F8',
   				'850': '#FDFDFD',
   				'900': '#FFFFFF'
-  			},
+  			}},
   			fontFamily: {
   				inter: 'var(--font-inter)',
   				spaceGrotesk: 'var(--font-space-grotesk)'
@@ -60,12 +60,7 @@ const config: Config = {
   			screens: {
   				xs: '420px'
   			}
-  		},
-  		borderRadius: {
-  			lg: 'var(--radius)',
-  			md: 'calc(var(--radius) - 2px)',
-  			sm: 'calc(var(--radius) - 4px)'
-  		}
+
   	}
   },
   plugins: [tailwindcss_animate, typography],
