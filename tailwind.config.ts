@@ -17,7 +17,7 @@ const config: Config = {
 				"100": "#FFF1E6",
 				"500": "#5179c3",
 			},
-  			'accent-gradient': 'linear-gradient(90deg, #77ACCF 100%, #5764D9 100%, #3756BC 100%)',
+  			'accent-gradient': 'linear-gradient(129deg, #5493bd 0%, #506ec9 100%);',
   			'accent-800': '#FFF1E6',
   			dark: {
   				'100': '#000000',
