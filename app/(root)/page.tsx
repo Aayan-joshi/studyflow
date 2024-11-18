@@ -1,21 +1,22 @@
-import {auth, signOut} from "@/auth";
+import {signOut} from "@/auth";
 import ROUTES from "@/constants/routes";
 
 const Home = async () => {
 
-  const session = await auth()
-      console.log(session)
   return (
 
-   <main className={`p-10`}>
-     <h1 className={`text-white p-10`}>Hello Students</h1>
+   <div className={`text-white`}>
+     <div>
+         <h1 className={`text-3xl text-white`}>Welcome to StudyFlow</h1>
+         <p className={`text-lg`}>Your personal study assistant</p>
+     </div>
 
      <form className={`px-10 pt-[100px]`} action={async ()=> {
        'use server';
          await signOut({redirectTo: ROUTES.SIGN_IN});
      }}>
      </form>
-   </main>
+   </div>
   );
 }
 

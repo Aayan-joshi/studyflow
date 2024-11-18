@@ -33,7 +33,7 @@ const NavLinks = ({isMobileNav = false} : {isMobileNav ?: boolean}) => {
                           className={cn(isActive
                                   ? 'primary-gradient rounded-lg text-light-900'
                                   : 'text-dark300_light900',
-                              "flex items-center justify-start gap-4 bg-transparent p-4")}
+                              "flex items-center justify-start gap-4 bg-transparent p-4 max-lg:justify-center overflow-hidden ")}
                     >
                         <Image src={link.icon} alt={link.title} width={20} height={20} className={cn({"invert-colors": !isActive})}/>
                         <p className={cn(isActive ? 'base-bold' : 'base-medium', !isMobileNav && 'max-lg:hidden')}>{link.title}</p>
