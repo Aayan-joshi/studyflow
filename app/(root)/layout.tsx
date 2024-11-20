@@ -2,6 +2,7 @@ import React, {ReactNode} from 'react'
 import Navbar from "@/components/navigation/navbar";
 import LeftNavigation from "@/components/navigation/navbar/LeftNavigation";
 import {auth} from "@/auth";
+import RightSidebar from "@/components/navigation/navbar/RightSidebar";
 
 
 const RootLayout = async ({children}: {children: ReactNode}) => {
@@ -20,7 +21,9 @@ const RootLayout = async ({children}: {children: ReactNode}) => {
                     <div className={`mx-auto w-full max-w-5xl`}>
                         {children}
                     </div>
+
                 </section>
+                <RightSidebar />
             </div>
         </main>
     )
