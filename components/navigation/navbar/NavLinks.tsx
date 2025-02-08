@@ -15,7 +15,7 @@ interface SidebarLinkProps {
     icon: string
 }
 
-const NavLinks = ({isMobileNav = false} : {isMobileNav ?: boolean}) => {
+const NavLinks = ({isMobileNav = false}: { isMobileNav?: boolean }) => {
     const pathname = usePathname()
     const userId = 1; // ! Temporary
 
@@ -23,8 +23,8 @@ const NavLinks = ({isMobileNav = false} : {isMobileNav ?: boolean}) => {
         <>
             {SidebarLinks.map((link: SidebarLinkProps) => {
                 const isActive = (pathname.includes(link.href) && link.href.length > 1) || (pathname === link.href)
-                if(link.href === '/profile') {
-                    if(userId) link.href = `/profile/${userId}`
+                if (link.href === '/profile') {
+                    if (userId) link.href = `/profile/${userId}`
                     else return null
                 }
 
@@ -41,10 +41,10 @@ const NavLinks = ({isMobileNav = false} : {isMobileNav ?: boolean}) => {
                 )
 
                 return isMobileNav ? (
-                    <SheetClose asChild key={link.href}>
-                        {LinkComponent}
-                    </SheetClose>
-                ) :
+                        <SheetClose asChild key={link.href}>
+                            {LinkComponent}
+                        </SheetClose>
+                    ) :
                     <React.Fragment key={link.href}>
                         {LinkComponent}
                     </React.Fragment>

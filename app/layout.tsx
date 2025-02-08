@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type {Metadata} from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import ThemeProvider from "@/context/Theme";
@@ -8,42 +8,42 @@ import {SessionProvider} from "next-auth/react";
 import {auth} from "@/auth";
 
 const inter = localFont({
-  src: "fonts/InterVF.ttf",
-  variable: "--font-inter",
+    src: "fonts/InterVF.ttf",
+    variable: "--font-inter",
 });
 const spaceGrotesk = localFont({
-  src: "fonts/SpaceGroteskVF.ttf",
-  variable: "--font-space-grotesk",
+    src: "fonts/SpaceGroteskVF.ttf",
+    variable: "--font-space-grotesk",
 });
 
 export const metadata: Metadata = {
-  icons: "/images/site-logo.svg",
-  title: "Study Flow",
-  description: "Study Flow : Your Personal Study Assistant",
+    icons: "/images/site-logo.svg",
+    title: "Study Flow",
+    description: "Study Flow : Your Personal Study Assistant",
 };
 
-const RootLayout= async ({
-                                     children,
-                                   }: Readonly<{
-  children: React.ReactNode;
+const RootLayout = async ({
+                              children,
+                          }: Readonly<{
+    children: React.ReactNode;
 }>) => {
     const session = await auth()
 
-  return (
-      <html lang="en" suppressHydrationWarning>
-      <head>
-
-          <link
-              rel="stylesheet"
+    return (
+        <html lang="en" suppressHydrationWarning>
+        <head>
+            <title>Study Flow</title>
+            <link
+                rel="stylesheet"
                 type='text/css'
-                href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css"
-          />
+                href={"https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css"}
+            />
 
-      </head>
-      <SessionProvider session={session}>
-          <body
-              className={`${inter.className} ${spaceGrotesk.variable} antialiased`}
-          >
+        </head>
+        <SessionProvider session={session}>
+            <body
+                className={`${inter.className} ${spaceGrotesk.variable} antialiased`}
+            >
             <ThemeProvider
                 attribute={"class"}
                 defaultTheme={`system`}
@@ -52,12 +52,12 @@ const RootLayout= async ({
             >
                 {children}
             </ThemeProvider>
-           <Toaster />
-          </body>
+            <Toaster/>
+            </body>
         </SessionProvider>
 
-      </html>
-  );
+        </html>
+    );
 }
 
 export default RootLayout;
