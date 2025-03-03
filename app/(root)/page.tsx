@@ -3,8 +3,9 @@ import {Button} from "@/components/ui/button";
 import Link from "next/link";
 import LocalSearch from "@/components/search/LocalSearch";
 import HomeFilter from "@/components/Filters/HomeFilter";
+import QuestionCard from "@/components/cards/QuestionCard";
 
-const questions = [
+const questions: Question[] = [
     {
         _id: "1",
         title: "How to learn React?",
@@ -21,12 +22,13 @@ const questions = [
         ],
         author: {
             _id: "1",
-            name: "John Doe"
+            name: "John Doe",
+            image: "https://png.pngtree.com/png-vector/20230831/ourmid/pngtree-man-avatar-image-for-profile-png-image_9197908.png"
         },
         upvotes: 10,
         answers: 5,
         views: 100,
-        createdAt: new Date(),
+        createdAt: new Date("2021-09-01"),
     },
     {
         _id: "2",
@@ -40,12 +42,13 @@ const questions = [
         ],
         author: {
             _id: "1",
-            name: "John Doe"
+            name: "John Doe",
+            image: "https://png.pngtree.com/png-vector/20230831/ourmid/pngtree-man-avatar-image-for-profile-png-image_9197908.png"
         },
         upvotes: 10,
         answers: 5,
         views: 100,
-        createdAt: new Date(),
+        createdAt: new Date("2021-09-01"),
     },
     {
         _id: "3",
@@ -63,12 +66,13 @@ const questions = [
         ],
         author: {
             _id: "1",
-            name: "John Doe"
+            name: "John Doe",
+            image: "https://png.pngtree.com/png-vector/20230831/ourmid/pngtree-man-avatar-image-for-profile-png-image_9197908.png"
         },
         upvotes: 10,
         answers: 5,
         views: 100,
-        createdAt: new Date(),
+        createdAt: new Date("2021-09-01"),
     }
 ]
 
@@ -90,7 +94,7 @@ const Home = async ({searchParams}: SearchParams) => {
             <section className={`w-full flex flex-col-reverse sm:flex-row justify-between gap-4 items-center`}>
                 <h1 className={`h1-bold text-dark100_light900`}>All Questions</h1>
                 <Button className={`primary-gradient min-h-[46px] px-4 py-3 !text-light-900`} asChild>
-                    <Link href={ROUTES.QUESTION}>Ask a Question</Link>
+                    <Link href={ROUTES.ASK_QUESTION}>Ask a Question</Link>
                 </Button>
             </section>
 
@@ -111,7 +115,7 @@ const Home = async ({searchParams}: SearchParams) => {
                 {
                     filteredQuestions.map((question) => {
                         return (
-                           <div key={question._id}>{question.title}</div>
+                           <QuestionCard key={question._id} question={question}/>
                         )
                     })
                 }

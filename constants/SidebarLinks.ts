@@ -31,7 +31,7 @@ export const SidebarLinks = [
     },
     {
         title: 'Ask a Question',
-        icon: '/icons/question.svg',
-        href: '/questions',
+        icon: '/icons/ask-question.svg',
+        href: '/ask-question',
     }
 ]
