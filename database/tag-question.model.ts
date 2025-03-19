@@ -21,5 +21,6 @@ const TagQuestionSchema = new Schema({
     timestamps: true
 })
  
+export interface ITagQuestionDoc extends ITagQuestion, Document {}
 const TagQuestion = models.tagQuestion || model<ITagQuestion>("TagQuestion", TagQuestionSchema)
 export default TagQuestion

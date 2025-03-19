@@ -44,6 +44,6 @@ const answerSchema = new Schema({
     timestamps: true
 })
 
-
+export interface IAnswerDoc extends IAnswer, Document {}
 const Answers = models.answer || model<IAnswer>("Answer", answerSchema) 
 export default Answers

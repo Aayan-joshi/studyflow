@@ -22,5 +22,6 @@ const accountSchema = new Schema({
 }
 )
 
+export interface IAccountDoc extends IAccount, Document {}
 const Account = models?.account || model<IAccount>('Account', accountSchema)
 export default Account

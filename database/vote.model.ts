@@ -39,5 +39,6 @@ const VoteSchema = new Schema({
     timestamps: true
 })
 
+export interface IVoteDoc extends IVote, Document {}
 const Vote = models.vote || model<IVote>("Vote", VoteSchema)
 export default Vote

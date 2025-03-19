@@ -6,7 +6,7 @@ export interface IUser {
     email: string;
     bio?: string;
     image: string;
-    location?: string;
+    userLocation?: string;
     portfolio?: string;
     reputation?: number;
 }
@@ -17,7 +17,7 @@ const userSchema = new Schema({
     email: {type: String, required: true, unique: true},
     bio: {type: String},
     image: {type: String, required: true},
-    location: {type: String},
+    userLocation: {type: String},
     portfolio: {type: String},
     reputation: {type: Number, default: 0},
 },
@@ -26,8 +26,10 @@ const userSchema = new Schema({
 }
 )
 
+export interface IUserDoc extends IUser, Document {}
 const User = models?.user || model<IUser>('User', userSchema)
 export default User;
+
 
 
 

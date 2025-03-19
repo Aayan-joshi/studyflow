@@ -59,6 +59,6 @@ const questionSchema = new Schema({
     timestamps: true
 })
 
-
+export interface IQuestionDoc extends IQuestion, Document {}
 const Questions = models.Question || model<IQuestion>("Question", questionSchema) 
 export default Questions

@@ -22,6 +22,8 @@ const tagSchema = new Schema({
     timestamps: true
 })
 
+export interface ITagDoc extends ITag, Document {}
+
 
 const Tag = models.tag || model<ITag>("Tag", tagSchema) 
 export default Tag
