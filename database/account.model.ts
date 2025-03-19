@@ -1,5 +1,4 @@
 import {Schema, Types, model, models} from 'mongoose'
-import User from './user.model';
 
 export interface IAccount {
     user: Types.ObjectId;
@@ -11,7 +10,7 @@ export interface IAccount {
 }
 
 const accountSchema = new Schema({
-    userId: {type: Schema.Types.ObjectId, ref: User, required: true},
+    userId: {type: Schema.Types.ObjectId, ref: "User", required: true},
     name: {type: String, required: true},
     image: {type: String},
     password: {type: String},
