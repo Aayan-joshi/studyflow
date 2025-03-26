@@ -22,5 +22,5 @@ const TagQuestionSchema = new Schema({
 })
  
 export interface ITagQuestionDoc extends ITagQuestion, Document {}
-const TagQuestion = models.tagQuestion || model<ITagQuestion>("TagQuestion", TagQuestionSchema)
+const TagQuestion = models.TagQuestion || model<ITagQuestion>("TagQuestion", TagQuestionSchema)
 export default TagQuestion

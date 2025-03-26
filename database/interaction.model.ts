@@ -39,5 +39,5 @@ const InteractionSchema = new Schema({
 })
 
 export interface IInteractionDoc extends IInteraction, Document {}
-const Interaction = models.interaction || model<IInteraction>("Interaction", InteractionSchema)
+const Interaction = models.Interaction || model<IInteraction>("Interaction", InteractionSchema)
 export default Interaction

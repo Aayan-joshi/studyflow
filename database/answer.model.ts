@@ -45,5 +45,5 @@ const answerSchema = new Schema({
 })
 
 export interface IAnswerDoc extends IAnswer, Document {}
-const Answers = models.answer || model<IAnswer>("Answer", answerSchema) 
+const Answers = models.Answer || model<IAnswer>("Answer", answerSchema) 
 export default Answers

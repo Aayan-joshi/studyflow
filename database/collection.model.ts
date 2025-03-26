@@ -22,5 +22,5 @@ const CollectionSchema = new Schema({
 })
 
 export interface ICollectionDoc extends ICollection, Document {}
-const Collection = models.collection || model<ICollection>("Collection", CollectionSchema)
+const Collection = models.Collection || model<ICollection>("Collection", CollectionSchema)
 export default Collection
