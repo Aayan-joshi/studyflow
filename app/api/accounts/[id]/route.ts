@@ -4,7 +4,7 @@ import dbConnect from "@/lib/mongoose";
 import { APIErrorResponse } from "@/types/global";
 import Account from "@/database/account.model";
 import { NextResponse } from "next/server";
-import { UserSchema } from "@/lib/validations";
+import { AccountSchema } from "@/lib/validations";
 
 export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
@@ -34,7 +34,7 @@ export async function PUT(req: Request, { params}: { params: Promise<{ id: strin
         await dbConnect();
 
         const body = await req.json();
-        const validatedData = UserSchema.partial().safeParse(body);
+        const validatedData = AccountSchema.partial().safeParse(body);
         if (!validatedData.success) throw new ValidationError(validatedData.error.flatten().fieldErrors)
 
         const updatedAccount = await Account.findByIdAndUpdate(id, validatedData.data, { new: true })
