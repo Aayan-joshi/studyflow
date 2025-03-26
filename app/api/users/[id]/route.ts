@@ -46,7 +46,7 @@ export async function PUT(req: Request, { params}: { params: Promise<{ id: strin
     }
 }
 
-export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
     if (!id) throw new NotFoundError("User")
 
