@@ -4,6 +4,10 @@ import Link from "next/link";
 import LocalSearch from "@/components/search/LocalSearch";
 import HomeFilter from "@/components/Filters/HomeFilter";
 import QuestionCard from "@/components/cards/QuestionCard";
+import {Question} from "@/types/global";
+import { api } from "@/lib/api";
+import handleError from "@/lib/handlers/errors";
+
 
 const questions: Question[] = [
     {
@@ -76,11 +80,23 @@ const questions: Question[] = [
     }
 ]
 
+const test = async () => {
+    try {
+        return await api.users.getAll()
+    } catch (error) {
+        return handleError(error, "api")
+    }
+}
+
 interface SearchParams {
     searchParams: Promise<{ [key: string]: string }>
 }
 
 const Home = async ({searchParams}: SearchParams) => {
+    const users = await test()
+    console.log(users)
+
+
     const { query = "", filter = "" } = await searchParams;
 
     const filteredQuestions = questions.filter((question) =>
