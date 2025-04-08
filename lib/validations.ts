@@ -107,12 +107,12 @@ export const AccountSchema = z.object({
         message: "Password must contain at least one special character.",
     }).optional(),
     provider: z.string().min(1, { message: "Provider is required" }),
-    providerUUID: z.string().min(1, { message: "Provider UUID is required" }),
+    providerAccountId: z.string().min(1, { message: "Provider UUID is required" }),
 });
 
 export const SignInWithOauthSchema = z.object({
     provider: z.enum(['google', 'github']),
-    providerUUID: z.string().min(1, { message: "Provider UUID is required" }),
+    providerAccountId: z.string().min(1, { message: "Provider UUID is required" }),
     user: z.object({
         name: z.string().min(1, { message: "Name is required" }),
         username: z.string().min(1, { message: "User Name is required" }),

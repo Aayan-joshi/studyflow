@@ -2,7 +2,6 @@ import { IUser } from "@/database/user.model";
 import { fetchHandler } from "./handlers/fetch";
 import { IAccount } from "@/database/account.model";
 import {SignInWithOauthParams } from "@/types/action";
-import ROUTES from "@/constants/routes";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000/api";
 
@@ -29,9 +28,9 @@ export const api = {
     accounts: {
         getAll: () => fetchHandler(`${API_BASE_URL}/accounts`),
         getById: (id: string) => fetchHandler(`${API_BASE_URL}/accounts/${id}`),
-        getByProviderUUID: (providerUUID: string) => fetchHandler(`${API_BASE_URL}/accounts`, {
+        getByProviderUUID: (providerAccountId: string) => fetchHandler(`${API_BASE_URL}/accounts/provider`, {
             method: "POST",
-            body: JSON.stringify({ providerUUID }),
+            body: JSON.stringify({ providerAccountId }),
         }),
         create: (data: Partial<IAccount>) => fetchHandler(`${API_BASE_URL}/accounts`, {
             method: "POST",
@@ -46,10 +45,10 @@ export const api = {
         }),
     },
     auth: {
-        oAuthSignIn: ({user, provider, providerUUID}: SignInWithOauthParams) => fetchHandler(`${API_BASE_URL}/auth/${ROUTES.SIGN_IN_WITH_OAUTH}`, {
+        oAuthSignIn: ({user, provider, providerAccountId}: SignInWithOauthParams) => fetchHandler(`${API_BASE_URL}/auth/sign-in-with-oauth`, {
             method: "POST",
-            body: JSON.stringify({ user, provider, providerUUID }),
-        }),
+            body: JSON.stringify({ user, provider, providerAccountId }),
+        })
     }
     
 }

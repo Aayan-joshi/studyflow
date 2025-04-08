@@ -1,56 +1,106 @@
-import NextAuth from "next-auth"
-import GitHub from "@auth/core/providers/github";
-import Google from "@auth/core/providers/google";
-import { api } from "./lib/api";
-import { ActionResponse } from "@/types/global";
+import bcrypt from "bcryptjs";
+import NextAuth from "next-auth";
+import Credentials from "next-auth/providers/credentials";
+import GitHub from "next-auth/providers/github";
+import Google from "next-auth/providers/google";
+
 import { IAccountDoc } from "./database/account.model";
+import { IUserDoc } from "./database/user.model";
+import { api } from "./lib/api";
+import { SignInSchema } from "./lib/validations";
+import { ActionResponse } from "./types/global";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-    providers: [GitHub, Google],
-    callbacks: {
-        async session ({ session, token }) {
-            session.user.id = token.sub as string
-            return session
-        },
+  providers: [
+    GitHub,
+    Google,
+    Credentials({
+      async authorize(credentials) {
+        const validatedFields = SignInSchema.safeParse(credentials);
 
-        async jwt({ token, account }) {
-            if (account) {
-                const {data: existingAccount, success} = await api.accounts.getByProviderUUID(account.type === "credentials" 
-                    ? token.email! 
-                    : account.providerAccountId as string) as ActionResponse<IAccountDoc>
+        if (validatedFields.success) {
+          const { email, password } = validatedFields.data;
 
-                    if(!success || !existingAccount) return token
-                    const userId = existingAccount.userId;
+          const { data: existingAccount } = (await api.accounts.getByProviderUUID(
+            email
+          )) as ActionResponse<IAccountDoc>;
 
-                    if(userId) token.sub = userId.toString()
-            }
-            return token
-        },
+          if (!existingAccount) return null;
+
+          const { data: existingUser } = (await api.users.getById(
+            existingAccount.userId.toString()
+          )) as ActionResponse<IUserDoc>;
+
+          if (!existingUser) return null;
+
+          const isValidPassword = await bcrypt.compare(
+            password,
+            existingAccount.password!
+          );
+
+          if (isValidPassword) {
+            return {
+              id: existingUser.id,
+              name: existingUser.name,
+              email: existingUser.email,
+              image: existingUser.image,
+            };
+          }
+        }
+        return null;
+      },
+    }),
+  ],
+  callbacks: {
+    async session({ session, token }) {
+      session.user.id = token.sub as string;
+      return session;
+    },
+    async jwt({ token, account }) {
+      if (account) {
+        const { data: existingAccount, success } =
+          (await api.accounts.getByProviderUUID(
+            account.type === "credentials"
+              ? token.email!
+              : account.providerAccountId
+          )) as ActionResponse<IAccountDoc>;
+
+        if (!success || !existingAccount) return token;
+
+        const userId = existingAccount.userId;
+
+        if (userId) token.sub = userId.toString();
+      }
+
+      return token;
+    },
+    async signIn({ user, profile, account }) {
+      if (account?.type === "credentials") return true;
+      if (!account || !user) return false;
+
+      const userInfo = {
+        name: user.name!,
+        email: user.email!,
+        image: user.image!,
+        username:
+          account.provider === "github"
+            ? (profile?.login as string)
+            : (user.name?.replace(/\s/g, "").toLowerCase() as string),
+      };
 
 
-        async signIn({ user, account, profile }) {
-            if(account?.type === "credentials") return true
+      const data = (await api.auth.oAuthSignIn({
+        user: userInfo,
+        provider: account.provider as "github" | "google",
+        providerAccountId: account.providerAccountId,
+      })) as ActionResponse;
 
-            if(!account || !user) return false
-
-            const userInfo = {
-                name: user.name!,
-                email: user.email!,
-                image: user.image!,
-                username: account.provider === "github" ? (profile?.login as string) : (user.name?.toLowerCase() as string)
-            }
-
-            const response = await api.auth.oAuthSignIn({
-                user: userInfo,
-                provider: account.provider as "github" | "google",
-                providerUUID: account.providerAccountId as string,
-            }) as ActionResponse
-            
-            if (!response.success) {
-                return false
-            }
-
-            return true
-        },
-    }
+      if (data.success === false) return false;
+      if (data.error) {
+        console.error("Error signing in: \" Auth.ts \"", data.error);
+        return false;
+      }
+      return true;
+    },
+  },
 });

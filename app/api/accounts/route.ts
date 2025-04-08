@@ -26,18 +26,27 @@ export async function POST(request: Request) {
 
         const body = await request.json();
 
-        const validatedData = AccountSchema.parse(body);
+        const validationResult = AccountSchema.safeParse(body);
+        if (!validationResult.success) {
+            console.error("Validation Error:", validationResult.error.errors); // Debugging
+            return NextResponse.json(
+                { success: false, error: validationResult.error.errors },
+                { status: 400 }
+            );
+        }
+        const validatedData = validationResult.data;
 
-        //Check if user already exists || Email Address Check
-        const existingUser = await Account.findOne({provider: validatedData.provider, providerUUID: validatedData.providerUUID});
-        if(existingUser) throw new ForbiddenError("An Account with the same Provider already exists");
+        const existingUser = await Account.findOne({
+            provider: validatedData.provider,
+            providerAccountId: validatedData.providerAccountId,
+        });
 
+        if (existingUser) {
+            throw new ForbiddenError("An Account with the same Provider already exists");
+        }
 
-       
         const newAccount = await Account.create(validatedData);
-
-        return NextResponse.json({success: true, data: newAccount}, {status: 201});
-
+        return NextResponse.json({ success: true, data: newAccount }, { status: 201 });
     } catch (error) {
         return handleError(error, "api") as APIErrorResponse;
     }

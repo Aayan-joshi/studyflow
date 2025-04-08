@@ -6,7 +6,7 @@ export interface IAccount {
     image: string;
     password: string;
     provider: string;
-    providerUUID: string;
+    providerAccountId: string;
 }
 
 const accountSchema = new Schema({
@@ -15,7 +15,7 @@ const accountSchema = new Schema({
     image: {type: String},
     password: {type: String},
     provider: {type: String, required: true},
-    providerUUID: {type: String, required: true}
+    providerAccountId: {type: String, required: true}
 },
 {
     timestamps: true
