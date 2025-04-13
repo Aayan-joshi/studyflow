@@ -15,3 +15,9 @@ export interface AuthCredentials {
     password: string;
     username: string;
 }
+
+export interface CreateQuestionParams {
+    title: string;
+    content: string;
+    tags: string[];
+}

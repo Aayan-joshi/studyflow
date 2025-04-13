@@ -38,3 +38,8 @@ type ErrorResponse = ActionResponse & { success: false };
 
 type APIErrorResponse = NextResponse<ErrorResponse>;
 type APISuccessResponse<T> = NextResponse<SuccessResponse<T>>;
+
+interface RouteParams {
+    params: Promise<Record<string, string>>;
+    searchParams: Promise<Record<string, string | string[]>>;
+}
