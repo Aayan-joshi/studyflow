@@ -120,3 +120,12 @@ export const SignInWithOauthSchema = z.object({
         image: z.string().url("Please provide a valid URL").optional(),
     }),
 });
+
+export const EditQuestionSchema = AskQuestionSchema.extend({
+    questionId: z.string().regex(/^[a-f\d]{24}$/i, { message: "Invalid ObjectId format" }), // Validate MongoDB ObjectId
+});
+
+export const GetQuestionSchema = z.object({
+    questionId: z.string().regex(/^[a-f\d]{24}$/i, { message: "Invalid ObjectId format" }), // Validate MongoDB ObjectId
+});
+
