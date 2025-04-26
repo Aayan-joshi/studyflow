@@ -1,28 +1,30 @@
-import React from 'react'
+import { notFound, redirect } from "next/navigation";
+import React from "react";
+
+import { auth } from "@/auth";
 import QuestionForm from "@/components/forms/QuestionForm";
-import { auth } from '@/auth';
-import { notFound, redirect } from 'next/navigation';
-import { RouteParams } from '@/types/global';
+import { getQuestion } from "@/lib/actions/question.action";
+import ROUTES from "@/constants/routes";
+import { RouteParams } from "@/types/global";
 
 const EditQuestion = async ({ params }: RouteParams) => {
-    const { id } = await params;
-    if (!id) return notFound()
+  const { id } = await params;
+  if (!id) return notFound();
 
-    const session = await auth()
-    if (!session) return redirect('/sign-in')
+  const session = await auth();
+  if (!session) return redirect("/sign-in");
 
-    // const {data:question, success} = await 
+  const { data: question, success } = await getQuestion({ questionId: id });
+  if (!success) return notFound();
 
-    return (
-        <div>
-            <div className={`h1-bold text-dark100_light900`}>
-                Ask a question
-            </div>
-            <div className={`mt-9`}>
-                <QuestionForm />
-            </div>
+  if (question?.author.toString() !== session?.user?.id)
+    redirect(ROUTES.QUESTION(id));
 
-        </div>
-    )
-}
-export default EditQuestion
+  return (
+    <main>
+      <QuestionForm question={question} isEdit />
+    </main>
+  );
+};
+
+export default EditQuestion;

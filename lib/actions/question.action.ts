@@ -1,12 +1,12 @@
 "use server"
 
 import { CreateQuestionParams, EditQuestionParams, GetQuestionParams } from "@/types/action";
-import { ActionResponse, ErrorResponse, Question } from "@/types/global";
-import Questions from "@/database/question.model";
+import { ActionResponse, ErrorResponse, PaginatedSearchParams, Question } from "@/types/global";
+import Questions, { IQuestionDoc } from "@/database/question.model";
 import action from "../handlers/action";
-import { AskQuestionSchema, EditQuestionSchema, GetQuestionSchema } from "../validations";
+import { AskQuestionSchema, EditQuestionSchema, GetQuestionSchema, PaginatedSearchParamsSchema } from "../validations";
 import handleError from "../handlers/errors";
-import mongoose from "mongoose";
+import mongoose, { FilterQuery } from "mongoose";
 import Tag, { ITagDoc } from "@/database/tag.model";
 import TagQuestion from "@/database/tag-question.model";
 
@@ -62,7 +62,7 @@ export async function createQuestion(params: CreateQuestionParams): Promise<Acti
 
 }
 
-export async function editQuestion(params: EditQuestionParams): Promise<ActionResponse<Question> | ErrorResponse> {
+export async function editQuestion(params: EditQuestionParams): Promise<ActionResponse<IQuestionDoc> | ErrorResponse> {
     const validationResult = await action({ params, schema: EditQuestionSchema, authorize: true });
 
     if (validationResult instanceof Error) {
@@ -97,11 +97,11 @@ export async function editQuestion(params: EditQuestionParams): Promise<ActionRe
         // Tag Manipulation
         // Check if tags are the same, if not, update them
         const tagsToAdd = tags.filter(
-            (tag) => !question.tags.includes(tag.toLowerCase())
+            (tag) => !question.tags.some((t: ITagDoc)=>t.name.toLowerCase().includes(tag.toLowerCase()))
         )
 
         const tagsToRemove = question.tags.filter(
-            (tag: ITagDoc) => !tags.includes(tag.name.toLowerCase())
+            (tag: ITagDoc) => !tags.some((t)=>t.toLowerCase().includes(tag.name.toLowerCase()))
         );
 
         const newTagDocuments = [];
@@ -109,7 +109,7 @@ export async function editQuestion(params: EditQuestionParams): Promise<ActionRe
         if (tagsToAdd.length > 0) {
             for (const tag of tagsToAdd) {
                 const existingTag = await Tag.findOneAndUpdate(
-                    { name: { $regex: new RegExp(`^${tag}$`, 'i') }, },
+                    { name: { $regex: `^${tag}$`, $options: 'i' } },
                     { $setOnInsert: { name: tag }, $inc: { question: 1 } },
                     { session, upsert: true, new: true });
 
@@ -120,12 +120,8 @@ export async function editQuestion(params: EditQuestionParams): Promise<ActionRe
                     });
 
                     question.tags.push(existingTag._id);
-                }
-
-                
+                }   
             }
-
-            await TagQuestion.insertMany(newTagDocuments, { session });
         }
 
         if (tagsToRemove.length > 0) {
@@ -144,13 +140,13 @@ export async function editQuestion(params: EditQuestionParams): Promise<ActionRe
             );
 
             question.tags = question.tags.filter(
-                (tagId: mongoose.Types.ObjectId) => !tagIdsToRemove.includes(tagId)
+                (tag: mongoose.Types.ObjectId) => !tagIdsToRemove.some((id: mongoose.Types.ObjectId) => id.equals(tag._id))
             );  
 
 
         }
 
-        if(newTagDocuments.length > 0) {
+        if (newTagDocuments.length > 0) {
             await TagQuestion.insertMany(newTagDocuments, { session });
         }
 
@@ -193,4 +189,66 @@ export async function getQuestion(params: GetQuestionParams): Promise<ActionResp
 
 }
 
-    
+export async function getQuestions(params: PaginatedSearchParams): Promise<ActionResponse<{questions: Question[]; isNext: boolean}> | ErrorResponse> {
+    const validatedResult = await action({ params, schema: PaginatedSearchParamsSchema, authorize: true });
+
+    if (validatedResult instanceof Error) {
+        return handleError(validatedResult) as ErrorResponse;
+    }
+
+    const { page = 1, pageSize = 10, query, filter } = validatedResult.params!;
+    const skip = (Number(page) - 1) * pageSize;
+    const limit = pageSize;
+
+    const filterQuery: FilterQuery<typeof Questions> = {};
+
+    if(filter === "recommended") {
+        return { success: true, data: { questions: [], isNext: false } };
+    }
+
+    if(query) {
+        filterQuery.$or = [
+            { title: { $regex: new RegExp(query, 'i') } },
+            { content: { $regex: new RegExp(query, 'i') } },
+        ];
+    }
+
+    let sortCriteria = {}
+
+    switch (filter) {
+        case "latest":
+            sortCriteria = { createdAt: -1 };
+            break;
+        case "most-votes":
+            sortCriteria = { upvotes: -1 };
+            break;
+        case "unanswered":
+            filterQuery.answers = 0;
+            sortCriteria = { createdAt: -1};
+            break;
+        default:
+            sortCriteria = { createdAt: -1 };
+    }
+
+    try {
+        const totalQuestions = await Questions.countDocuments(filterQuery);
+
+        const questions = await Questions.find(filterQuery)
+            .populate("tags", "name")
+            .populate("author", "name image")
+            .lean()
+            .sort(sortCriteria)
+            .skip(skip)
+            .limit(limit);
+
+        const isNext = totalQuestions > skip + questions.length;
+
+        return { success: true, data: { questions: JSON.parse(JSON.stringify(questions)), isNext } };
+
+
+    } catch (error) {
+        return handleError(error) as ErrorResponse;
+        
+    }
+
+}
