@@ -19,30 +19,37 @@ import { MDXEditorMethods } from '@mdxeditor/editor';
 import dynamic from 'next/dynamic';
 import { z } from 'zod';
 import TagCard from '../cards/TagCard';
-import { createQuestion } from '@/lib/actions/question.action';
+import { createQuestion, editQuestion } from '@/lib/actions/question.action';
 import { toast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import ROUTES from '@/constants/routes';
 import {ReloadIcon} from '@radix-ui/react-icons';
+import { Question } from '@/types/global';
 
 const Editor = dynamic(() => import('@/components/editor/index'), {
   // Make sure we turn SSR off
   ssr: false
 })
 
+interface QuestionFormParams {
+  question?: Question;
+  isEdit?: boolean;
+}
 
-const QuestionForm = () => {
+const QuestionForm = ({question, isEdit=false}: QuestionFormParams) => {
   const router = useRouter();
   const editorRef = useRef<MDXEditorMethods>(null);
   const [isPending, startTransition] = useTransition();
+
+  console.log(question?.tags, isEdit)
 
 
   const form = useForm<z.infer<typeof AskQuestionSchema>>({
     resolver: zodResolver(AskQuestionSchema),
     defaultValues: {
-      title: "",
-      content: "",
-      tags: []
+      title: question?.title || "",
+      content: question?.content || "",
+      tags: question?.tags.map(tag => tag.name) || []
     }
   })
 
@@ -88,6 +95,28 @@ const QuestionForm = () => {
   const handleCreateQuestion = async (data: z.infer<typeof AskQuestionSchema>) => {
 
     startTransition(async () => {
+
+      if(isEdit && question) {
+        const result = await editQuestion({questionId: question?._id, ...data})
+
+        if(result.success) {
+          toast({
+            title: "Success",
+            description: "Question Updated Successfully"
+          });
+
+          if (result.data) router.push(ROUTES.QUESTION(result.data._id))
+        } else {
+          toast({
+            title: `Error ${result.status}`,
+            description: result.error?.message || "Something went wrong",
+            variant: "destructive"
+          })
+        }
+
+        return;
+      }
+
       const result = await createQuestion(data);
       if (result.success) {
         toast({
@@ -95,7 +124,11 @@ const QuestionForm = () => {
           description: "Your question has been created successfully",
         });
 
-        if (result.data) router.push(ROUTES.QUESTION(result.data._id));
+
+        // TODO: Fix this type issue for result.data._id
+        if (result.data && typeof result.data === 'object' && '_id' in result.data) {
+          router.push(ROUTES.QUESTION((result.data as { _id: string })._id));
+        }
         else {
           toast({
             title: "Error: Question Creation Failed",
@@ -166,10 +199,11 @@ const QuestionForm = () => {
                     onKeyDown={(e) => handleInputKeyDown(e, field)}
                   />
                   {field.value.length > 0 && (
+                    
                     <div className="flex-start mt-2.5 flex-wrap gap-2.5">
-                      {field?.value?.map((tag: string) => (
+                      {field?.value?.map((tag: string, i) => (
                         <TagCard
-                          key={tag}
+                          key={i}
                           _id={tag}
                           name={tag}
                           compact
@@ -201,7 +235,7 @@ const QuestionForm = () => {
             </>
             :
             <>
-            Ask a Question
+            {isEdit ? "Edit" : "Ask a Question"}
             </>
             }
             </Button>

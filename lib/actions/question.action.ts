@@ -1,7 +1,7 @@
 "use server"
 
 import { CreateQuestionParams, EditQuestionParams, GetQuestionParams } from "@/types/action";
-import { ActionResponse, ErrorResponse } from "@/types/global";
+import { ActionResponse, ErrorResponse, Question } from "@/types/global";
 import Questions from "@/database/question.model";
 import action from "../handlers/action";
 import { AskQuestionSchema, EditQuestionSchema, GetQuestionSchema } from "../validations";
@@ -10,7 +10,7 @@ import mongoose from "mongoose";
 import Tag, { ITagDoc } from "@/database/tag.model";
 import TagQuestion from "@/database/tag-question.model";
 
-export async function createQuestion(params: CreateQuestionParams): Promise<ActionResponse> {
+export async function createQuestion(params: CreateQuestionParams): Promise<ActionResponse<Question> | ErrorResponse> {
     const validationResult = await action({ params, schema: AskQuestionSchema, authorize: true });
 
     if (validationResult instanceof Error) {
@@ -62,7 +62,7 @@ export async function createQuestion(params: CreateQuestionParams): Promise<Acti
 
 }
 
-export async function editQuestion(params: EditQuestionParams): Promise<ActionResponse> {
+export async function editQuestion(params: EditQuestionParams): Promise<ActionResponse<Question> | ErrorResponse> {
     const validationResult = await action({ params, schema: EditQuestionSchema, authorize: true });
 
     if (validationResult instanceof Error) {
@@ -94,22 +94,8 @@ export async function editQuestion(params: EditQuestionParams): Promise<ActionRe
         }
 
 
-        // const tagIds: mongoose.Types.ObjectId[] = [];
-
-        // const tagQuestionDocuments = []
-
-        // for (const tag of tags) {
-        //     const existingTag = await Tag.findOneAndUpdate({name: {$regex: new RegExp(`^${tag}$`, 'i')},},
-        //     { $setOnInsert: {name: tag}, $inc: {question: 1}},
-        //     {session, upsert: true, new: true});
-
-        //     tagIds.push(existingTag!._id);
-        //     tagQuestionDocuments.push({question: question._id, tag: existingTag!._id});
-        // }
-
-        // await TagQuestion.deleteMany({question: question._id}, {session});
-        // await TagQuestion.insertMany(tagQuestionDocuments, {session});
-
+        // Tag Manipulation
+        // Check if tags are the same, if not, update them
         const tagsToAdd = tags.filter(
             (tag) => !question.tags.includes(tag.toLowerCase())
         )
@@ -172,11 +158,6 @@ export async function editQuestion(params: EditQuestionParams): Promise<ActionRe
         await question.save({ session });
         await session.commitTransaction();
 
-
-        // await Questions.findByIdAndUpdate(question._id, {$push: {tags: { $each: tagIds}}}, {session});
-
-        // await session.commitTransaction();
-
         return { success: true, data: JSON.parse(JSON.stringify(question)) };
 
     } catch (error) {
@@ -188,7 +169,7 @@ export async function editQuestion(params: EditQuestionParams): Promise<ActionRe
     }
 }
 
-export async function getQuestion(params: GetQuestionParams): Promise<ActionResponse> {
+export async function getQuestion(params: GetQuestionParams): Promise<ActionResponse<Question> | ErrorResponse> {
     const validationResult = await action({ params, schema: GetQuestionSchema, authorize: true });
 
     if (validationResult instanceof Error) {
@@ -198,7 +179,7 @@ export async function getQuestion(params: GetQuestionParams): Promise<ActionResp
     const { questionId } = validationResult.params!;
 
     try {
-        const question = await Questions.findById(questionId).populate("tags").populate("author", "name username image reputation");
+        const question = await Questions.findById(questionId).populate("tags");
         
         if(!question) {
             throw new Error("Question not found");
