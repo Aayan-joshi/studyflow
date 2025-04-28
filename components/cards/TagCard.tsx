@@ -48,7 +48,7 @@ const TagCard = ({ _id, name, questions, showCount = false, compact = false, rem
             return <button type='button' className={`flex justify-between gap-2`} onClick={(e)=> e.preventDefault()}>{Content}</button>
         } else {
         return (
-            <Link href={ROUTES.TAGS(_id)} className={`flex justify-between gap-2`}>
+            <Link href={ROUTES.TAG(_id)} className={`flex justify-between gap-2`}>
                 {Content}
             </Link>
         );

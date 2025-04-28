@@ -166,6 +166,7 @@ export async function editQuestion(params: EditQuestionParams): Promise<ActionRe
 }
 
 export async function getQuestion(params: GetQuestionParams): Promise<ActionResponse<Question> | ErrorResponse> {
+
     const validationResult = await action({ params, schema: GetQuestionSchema, authorize: true });
 
     if (validationResult instanceof Error) {
@@ -231,6 +232,7 @@ export async function getQuestions(params: PaginatedSearchParams): Promise<Actio
     }
 
     try {
+
         const totalQuestions = await Questions.countDocuments(filterQuery);
 
         const questions = await Questions.find(filterQuery)
