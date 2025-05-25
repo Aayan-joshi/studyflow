@@ -237,7 +237,7 @@ export async function getQuestions(params: PaginatedSearchParams): Promise<Actio
 
         const questions = await Questions.find(filterQuery)
             .populate("tags", "name")
-            .populate("author", "name image")
+            .populate("author", "name image") 
             .lean()
             .sort(sortCriteria)
             .skip(skip)
