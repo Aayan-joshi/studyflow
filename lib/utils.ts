@@ -19,7 +19,6 @@ import axios from "axios";
  * @returns A short and sweet description of the technology, or a fallback if not found.
  */
 export const getTechDescription = async (techName: string): Promise<string> => {
-  const normalizedTechName = techName.replace(/[ .]/g, "").toLowerCase();
   const tryWikipedia = async (title: string) => {
     try {
       const apiUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
