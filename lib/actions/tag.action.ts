@@ -3,14 +3,14 @@ import { GetTagQuestionsSchema, PaginatedSearchParamsSchema } from "../validatio
 import action from "../handlers/action";
 import handleError from "../handlers/errors";
 import { FilterQuery } from "mongoose";
-import { Tag } from "@/database";
 import { Question as Questions } from "@/database";
+import { Tag as Tags } from "@/database";
 import { GetTagQuestionsParams } from "@/types/action";
-import { Question } from "@/types/global";
+import { Question, Tag } from "@/types/global";
 
 export const getTags = async (
     params: PaginatedSearchParams
-): Promise<ActionResponse<{ tags: typeof Tag[]; isNext: boolean }> | ErrorResponse> => {
+): Promise<ActionResponse<{ tags: Tag[]; isNext: boolean }> | ErrorResponse> => {
     const validationResult = await action({
         params,
         schema: PaginatedSearchParamsSchema,
@@ -26,7 +26,7 @@ export const getTags = async (
     const skip = (Number(page) - 1) * pageSize;
     const limit = pageSize;
 
-    const filterQuery: FilterQuery<typeof Tag> = {};
+    const filterQuery: FilterQuery<Tag> = {};
 
     if (query) {
         filterQuery.$or = [{ name: { $regex: query, $options: "i" } }];
@@ -52,8 +52,8 @@ export const getTags = async (
     }
 
     try {
-        const totalTags = await Tag.countDocuments(filterQuery);
-        const tags = await Tag.find(filterQuery)
+        const totalTags = await Tags.countDocuments(filterQuery);
+        const tags = await Tags.find(filterQuery)
             .sort(sortCriteria)
             .skip(skip)
             .limit(limit);
@@ -79,7 +79,7 @@ export const getTags = async (
 }
 export const getTagQuestions = async (
     params: GetTagQuestionsParams
-): Promise<ActionResponse<{ tag: typeof Tag[]; questions: Question[]; isNext: boolean }> | ErrorResponse> => {
+): Promise<ActionResponse<{ tag: Tag; questions: Question[]; isNext: boolean }> | ErrorResponse> => {
     const validationResult = await action({
         params,
         schema: GetTagQuestionsSchema,
@@ -97,7 +97,7 @@ export const getTagQuestions = async (
 
 
     try {
-        const tag = await Tag.findById(tagId);
+        const tag = await Tags.findById(tagId);
         if (!tag) throw new Error("Tag not found");
 
 
