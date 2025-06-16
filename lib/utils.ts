@@ -76,3 +76,13 @@ export function timeAgo(createdAt: Date): string {
 
   return `${Math.floor(seconds)} seconds ago`;
 }
+
+export const formatNumber = (number: number) => {
+  if (number >= 1_000_000) {
+    return `${(number / 1_000_000).toFixed(1)}M`;
+  } else if (number >= 1_000) {
+    return `${(number / 1_000).toFixed(1)}K`;
+  } else {
+    return number.toString();
+  }
+}

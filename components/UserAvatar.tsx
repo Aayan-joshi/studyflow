@@ -1,18 +1,34 @@
 import ROUTES from '@/constants/routes'
-import { Session } from 'next-auth'
+import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import React from 'react'
 import { Avatar, AvatarFallback } from './ui/avatar'
 import Image from 'next/image'
 
-const UserAvatar = ({session, className = 'h-9 w-9'}: {session: Session | null, className?: string}) => {
 
-    const {name, id, image:imageUrl} = session?.user || {}
+export interface Props {
+    id: string
+    name: string
+    imageUrl?: string
+    fallbackClassName?: string
+    className?: string
+}
 
-    const initials = name!.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
+const UserAvatar = ({
+    id,
+    name="Anonymous",
+    imageUrl, 
+    fallbackClassName, 
+    className = 'h-9 w-9'}: Props) => {
+
+    const initials = name!.split(' ')
+    .map((n: string) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
 
   return (
-    <Link href={ROUTES.PROFILE(id!)}>
+    <Link href={ROUTES.PROFILE(id)}>
         <Avatar className={className}>
             {imageUrl ? (
                 <Image 
@@ -26,7 +42,7 @@ const UserAvatar = ({session, className = 'h-9 w-9'}: {session: Session | null, 
             )
         : (
             <AvatarFallback
-            className='primary-gradient font-spaceGrotesk font-bold tracking-wider text-white'
+            className={cn('primary-gradient font-spaceGrotesk font-bold tracking-wider text-white', fallbackClassName)}
             >
                 {initials}
             </AvatarFallback>
