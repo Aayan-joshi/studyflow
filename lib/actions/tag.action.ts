@@ -3,8 +3,10 @@ import { GetTagQuestionsSchema, PaginatedSearchParamsSchema } from "../validatio
 import action from "../handlers/action";
 import handleError from "../handlers/errors";
 import { FilterQuery } from "mongoose";
-import { Question, Tag } from "@/database";
+import { Tag } from "@/database";
+import { Question as Questions } from "@/database";
 import { GetTagQuestionsParams } from "@/types/action";
+import { Question } from "@/types/global";
 
 export const getTags = async (
     params: PaginatedSearchParams
@@ -77,7 +79,7 @@ export const getTags = async (
 }
 export const getTagQuestions = async (
     params: GetTagQuestionsParams
-): Promise<ActionResponse<{ tag: typeof Tag[]; questions: typeof Question[]; isNext: boolean }> | ErrorResponse> => {
+): Promise<ActionResponse<{ tag: typeof Tag[]; questions: Question[]; isNext: boolean }> | ErrorResponse> => {
     const validationResult = await action({
         params,
         schema: GetTagQuestionsSchema,
@@ -99,7 +101,7 @@ export const getTagQuestions = async (
         if (!tag) throw new Error("Tag not found");
 
 
-        const filterQuery: FilterQuery<typeof Question> = {
+        const filterQuery: FilterQuery<typeof Questions> = {
             tags: { $in: [tagId]}
         };
 
@@ -108,10 +110,13 @@ export const getTagQuestions = async (
         }
 
 
-        const totalQuestions= await Question.countDocuments(filterQuery);
-        const questions = await Question.find(filterQuery)
+        const totalQuestions= await Questions.countDocuments(filterQuery);
+        const questions = await Questions.find(filterQuery)
         .select('_id title views upvotes downvotes answers createdAt author')
         .populate([
+            
+            
+            
             {path: 'author', select: 'name image'},
             {path: 'tags', select: 'name'}
         ])

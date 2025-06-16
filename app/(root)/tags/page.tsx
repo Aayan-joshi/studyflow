@@ -4,7 +4,7 @@ import LocalSearch from '@/components/search/LocalSearch';
 import ROUTES from '@/constants/routes';
 import { EMPTY_TAGS } from '@/constants/states';
 import { toast } from '@/hooks/use-toast';
-import { getTags } from '@/lib/actions/tag.actions'
+import { getTags } from '@/lib/actions/tag.action'
 import { PaginatedSearchParams, RouteParams } from '@/types/global';
 import React from 'react'
 
